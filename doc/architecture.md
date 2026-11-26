@@ -4,6 +4,25 @@
 
 ## 一次调用经过哪些模块
 
+```mermaid
+sequenceDiagram
+    participant C as 调用方
+    participant E as Engine
+    participant S as plan_batch
+    participant R as ModelRunner
+    C->>E: add_request(prompt, max_new_tokens)
+    E-->>C: 请求 ID
+    loop 有活跃请求
+        C->>E: step()
+        E->>S: 活跃请求与本轮 token 预算
+        S-->>E: 同一阶段的 BatchItem
+        E->>R: execute(batch)
+        R-->>E: 需要采样的请求 ID 与对应 token
+        E->>E: 核对结果、更新进度、移除已结束请求
+        E-->>C: 本轮 TokenEvent 列表
+    end
+```
+
 | 入口 | 输入 → 输出 | 状态归属 |
 |---|---|---|
 | [Engine.add_request](../myvllm/engine.py) | prompt token ID、输出上限 → 请求 ID | 引擎保存 prompt 的不可变副本，分配单调递增的 ID。外部修改原始列表不会更改排队中的输入。 |
