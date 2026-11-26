@@ -2,6 +2,10 @@
 
 MyVLLM 是面向 **Qwen3.8-27B 纯文本生成**的推理引擎，目前处于开发阶段。权重使用 BF16，Gated DeltaNet（GDN）递归状态按模型配置使用 FP32。[模型配置](https://huggingface.co/Qwen/Qwen3.8-27B/blob/main/config.json)
 
+## 开发入口
+
+阅读[架构与学习文档](doc/README.md)了解引擎的执行流程。运行 `python -m unittest discover -s tests -v` 验证请求调度。关键改动的文档要求见[开发约定](AGENTS.md)。
+
 ## 功能清单
 
 已勾选的功能附有对应的测试或实验结果。
