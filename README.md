@@ -2,6 +2,8 @@
 
 MyVLLM 是面向 **Qwen3.8-27B 纯文本生成**的推理引擎，目前处于开发阶段。权重使用 BF16，Gated DeltaNet（GDN）递归状态按模型配置使用 FP32。[模型配置](https://huggingface.co/Qwen/Qwen3.8-27B/blob/main/config.json)
 
+后续计划支持 **Qwen3.6-35B-A3B** 的纯文本生成，并用该模型验证 MoE 专家并行（Expert Parallelism，EP）。
+
 ## 开发入口
 
 阅读[架构与学习文档](docs/README.md)了解引擎的执行流程。运行 `python -m unittest discover -s tests -v` 验证请求调度。关键改动的文档要求见[开发约定](AGENTS.md)。
@@ -14,6 +16,7 @@ MyVLLM 是面向 **Qwen3.8-27B 纯文本生成**的推理引擎，目前处于�
 
 - [x] **文本模型与权重加载** — 从官方 checkpoint 加载文本主干，用同一组输入 token 对照 Transformers 的 prefill logits，记录数值误差。[27B 实测](docs/cpu-model.md#实测记录)
 - [x] **增量 decode** — 同一序列逐 token 解码与整段重算对齐，覆盖门控全注意力和 GDN 的卷积、递归状态更新。[分块与整段对齐测试](tests/test_cpu_model.py)
+- [ ] **Qwen3.6-35B-A3B 纯文本推理** — 加载官方 BF16 checkpoint 的文本主干，支持混合注意力、Top-8 专家路由和共享专家。用固定权重和相同输入 token 对照 Transformers 的 prefill 与逐 token decode logits，记录数值误差。[模型配置](https://huggingface.co/Qwen/Qwen3.6-35B-A3B/blob/main/config.json)
 - [ ] **离线生成与采样** — 支持文本和 token ID 输入；验证 greedy、temperature、top-k、top-p，以及 EOS 和最大输出长度。
 
 ### 缓存
@@ -33,6 +36,7 @@ MyVLLM 是面向 **Qwen3.8-27B 纯文本生成**的推理引擎，目前处于�
 - [ ] **Decode CUDA Graph** — 覆盖不同 batch 桶及 eager 回退；验证填充槽位不会修改活跃请求的状态，测量开关前后的 decode 耗时。
 - [ ] **CPU/GPU 重叠调度** — 在新请求加入、取消及结束时验证结果归属和资源回收，用 trace 检查 CPU 调度与 GPU 执行的重叠区间。
 - [ ] **张量并行** — 在真实双卡上验证 TP=2 权重切分、集合通信和各 rank 的请求顺序，以 TP=1 输出为正确性参照。
+- [ ] **MoE 专家并行（EP）** — 将 Qwen3.6-35B-A3B 的路由专家分布到多张 GPU，按路由分发 token，并将加权专家输出合并回原 token 位置。在双卡上覆盖跨卡路由、某张卡本轮没有收到 token 和多请求批次。用相同权重和输入 token 对照 EP=1 的 prefill 与 decode logits，记录数值误差。
 
 ### 服务入口
 
