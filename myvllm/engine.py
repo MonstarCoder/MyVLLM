@@ -25,6 +25,7 @@ class Engine:
     def __init__(self, runner: ModelRunner, *, token_budget: int, eos_ids: Sequence[int] = ()):
         if token_budget < 1:
             raise ValueError("token_budget must be positive")
+        self._release = getattr(runner, "release", None)
         self._runner = runner
         self._token_budget = token_budget
         self._eos_ids = frozenset(eos_ids)
@@ -63,5 +64,7 @@ class Engine:
                 finished = request.generated == request.max_new_tokens or token in self._eos_ids
                 events.append(TokenEvent(item.request_id, token, finished))
                 if finished:
+                    if self._release is not None:
+                        self._release(item.request_id)
                     del self._requests[item.request_id]
         return events

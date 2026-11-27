@@ -55,4 +55,4 @@ flowchart TD
 1. 把 `token_budget` 改为 3。第一轮即可得到 token 6，整次生成缩短为两轮，decode 的起始位置仍然是 3。改变切块策略应保留逻辑位置。
 2. 给 Engine 增加 `eos_ids=[6]`。第二轮会产生结束事件，不再调度位置 3。终止条件应在输出产生后检查。
 
-从根目录运行 `python -m unittest discover -s tests -v`。[控制流测试](../tests/test_engine.py)逐轮断言输入、位置、采样和结束事件，并检查交错到达的请求与 EOS。模型接入后的数值验证要换用真实 logits；这套测试可以继续定位请求状态错误。
+从根目录运行 `python -m unittest discover -s tests -v`。[控制流测试](../tests/test_engine.py)逐轮断言输入、位置、采样和结束事件，并检查交错到达的请求与 EOS。真实 logits 的数值验证见 [CPU 文本模型](cpu-model.md)。
