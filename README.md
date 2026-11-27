@@ -1,4 +1,4 @@
-# MyVLLM
+<h1><img src="assets/myvllm-logo.png" alt="" width="88" height="88" align="absmiddle"> MyVLLM</h1>
 
 MyVLLM 是面向 **Qwen3.8-27B 纯文本生成**的推理引擎，目前处于开发阶段。权重使用 BF16，Gated DeltaNet（GDN）递归状态按模型配置使用 FP32。[模型配置](https://huggingface.co/Qwen/Qwen3.8-27B/blob/main/config.json)
 
